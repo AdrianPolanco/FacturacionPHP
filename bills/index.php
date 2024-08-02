@@ -1,42 +1,43 @@
 <?php
-
+//ADRIAN SAUL POLANCO FERRER 20232-0222
+session_start();
 include 'db.php';
-if (!isset($pdo)) {
-   echo '<form action="install.php" method="post">
-            <button type="submit">Instalar</button>
-          </form>';
-    exit; 
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
 }
 
- try {
-        $pdo = new PDO('mysql:host=localhost;dbname=factura_db', 'root', '');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        
-        $stmt = $pdo->query("SHOW TABLES LIKE 'instalacion'");
-        $tableExists = $stmt->fetchColumn();
+try {
+    $pdo = new PDO('mysql:host=host;dbname=db', 'user', 'pass');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        if (!$tableExists) {
-                      
-             echo '<form action="install.php" method="post">
+
+  /*  $stmt = $pdo->query("SHOW TABLES LIKE 'instalacion'");
+    $tableExists = $stmt->fetchColumn();
+
+    if (!$tableExists) {
+
+        echo '<form action="install.php" method="post">
                 <button type="submit">Instalar</button>
               </form>';
-            exit; 
-        }
+        exit;
+    }
 
-                       
-        $stmt = $pdo->query("SELECT completada FROM instalacion WHERE id = 1");
-        $instalacionCompletada = $stmt->fetchColumn();
 
-         if (!$instalacionCompletada or $instalacionCompletada == null) {
-            echo '<form action="install.php" method="post">
+    $stmt = $pdo->query("SELECT completada FROM instalacion WHERE id = 1");
+    $instalacionCompletada = $stmt->fetchColumn();
+
+    if (!$instalacionCompletada or $instalacionCompletada == null) {
+        echo '<form action="install.php" method="post">
                 <button type="submit">Instalar</button>
               </form>';
-            exit;
-        }
-    } catch (PDOException $e) {
-        die("Error de conexión: " . $e->getMessage());
-   }
+        exit;
+    }*/
+} catch (PDOException $e) {
+    die("Error de conexión: " . $e->getMessage());
+}
 // CRUD de Clientes
 if (isset($_POST['add_cliente'])) {
     $nombre = $_POST['nombre'];
@@ -46,7 +47,7 @@ if (isset($_POST['add_cliente'])) {
 }
 if (isset($_GET['delete_cliente'])) {
     $id = $_GET['delete_cliente'];
-    $stmt = $pdo->prepare("DELETE FROM clientes WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE clientes SET Deleted = 1 WHERE id = ?");
     $stmt->execute([$id]);
 }
 
@@ -59,7 +60,7 @@ if (isset($_POST['add_producto'])) {
 }
 if (isset($_GET['delete_producto'])) {
     $id = $_GET['delete_producto'];
-    $stmt = $pdo->prepare("DELETE FROM productos WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE productos SET Deleted = 1 WHERE id = ?");
     $stmt->execute([$id]);
 }
 
@@ -95,8 +96,8 @@ if (isset($_POST['add_factura'])) {
 }
 
 // Obtener datos
-$clientes = $pdo->query("SELECT * FROM clientes")->fetchAll(PDO::FETCH_ASSOC);
-$productos = $pdo->query("SELECT * FROM productos")->fetchAll(PDO::FETCH_ASSOC);
+$clientes = $pdo->query("SELECT * FROM clientes WHERE Deleted = 0")->fetchAll(PDO::FETCH_ASSOC);
+$productos = $pdo->query("SELECT * FROM productos WHERE Deleted = 0")->fetchAll(PDO::FETCH_ASSOC);
 $facturas = $pdo->query("
     SELECT f.id, f.codigo, f.fecha, f.total, c.nombre AS cliente
     FROM facturas f
@@ -123,6 +124,8 @@ $facturas = $pdo->query("
 
 <body>
     <div class="container mt-4">
+        <div class="d-flex justify-content-end"> <a href="logout.php" class="btn btn-danger no-print">Cerrar Sesión</a></div>
+
         <!-- CRUD de Clientes -->
         <h2 class="mb-4">Clientes</h2>
         <form method="POST" class="mb-4">

@@ -8,12 +8,25 @@ try {
     // Primero, conectar sin seleccionar una base de datos
     $pdo = new PDO("mysql:host=$host", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
 
     // Crear base de datos si no existe
     $pdo->exec("CREATE DATABASE IF NOT EXISTS $db");
     $pdo->exec("USE $db");
 
     // Crear tablas
+    $pdo->exec("
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL
+    );");
+
+    $password = password_hash('pasemesolosilomeresco70', PASSWORD_BCRYPT);
+    $pdo->exec("
+    INSERT INTO usuarios (username, password) VALUES ('adamix', '$password')
+    ON DUPLICATE KEY UPDATE username = 'adamix';");
+
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS clientes (
             id INT AUTO_INCREMENT PRIMARY KEY,

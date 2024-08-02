@@ -1,8 +1,8 @@
 <?php
-$host = 'localhost'; 
-$db = 'factura_db';
-$user = 'root'; 
-$pass = ''; 
+$host = 'sql202.infinityfree.com'; 
+$db = 'if0_37015989_bills';
+$user = 'if0_37015989'; 
+$pass = 'mDPCquln0hmJ5'; 
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
